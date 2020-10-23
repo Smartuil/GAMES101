@@ -32,15 +32,15 @@ Eigen::Matrix4f get_model_matrix(float rotation_angle)
 Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float zNear, float zFar)
 {
     // TODO: Copy-paste your implementation from the previous assignment.
-    Eigen::Matrix4f projection;
+    Eigen::Matrix4f projection = Eigen::Matrix4f::Identity();
 
-    Eigen::Matrix4f M_persp2ortho(4, 4);
-	Eigen::Matrix4f M_ortho_scale(4, 4);
-	Eigen::Matrix4f M_ortho_trans(4, 4);
+    Eigen::Matrix4f M_persp2ortho;
+	Eigen::Matrix4f M_ortho_scale;
+	Eigen::Matrix4f M_ortho_trans;
 
-	float angle = DEG2RAD(eye_fov); //  半角角度
-	float t = zNear * tan(angle/2);  // 宽
-	float r = t * aspect_ratio;  // 高
+	float angle = eye_fov * MY_PI / 180; 
+	float t = -zNear * tan(angle/2);  
+	float r = t * aspect_ratio;  
     float l = -r;
     float b = -t;
 
@@ -50,17 +50,17 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float z
 		                0,      0,      1,              0;
 
 	// 第二步正交投影所需要的平移和缩放矩阵
-	M_ortho_scale <<    2 / (r-l), 0,          0,                  0,
+	M_ortho_scale <<    2 / (r-l),  0,          0,                  0,
                         0,          2 / (t-b),  0,                  0,
                         0,          0,          2 / (zNear - zFar), 0,
                         0,          0,          0,                  1;
 
 	M_ortho_trans <<    1,          0,          0,                  0,
                         0,          1,          0,                  0,
-                        0,          0,          1,                  -(zNear * zFar) / 2,
+                        0,          0,          1,                  -(zNear + zFar) / 2,
                         0,          0,          0,                  1;
-	Eigen::Matrix4f M_ortho = M_ortho_scale * M_ortho_trans;
-	projection = M_ortho * M_persp2ortho * projection;
+
+	projection = M_ortho_scale * M_ortho_trans * M_persp2ortho * projection;
 
     return projection;
 }
@@ -144,7 +144,7 @@ int main(int argc, const char** argv)
         r.set_view(get_view_matrix(eye_pos));
         r.set_projection(get_projection_matrix(45, 1, 0.1, 50));
 
-        r.draw(pos_id, ind_id, col_id, rst::Primitive::Triangle, true);
+        r.draw(pos_id, ind_id, col_id, rst::Primitive::Triangle, false);
 
         cv::Mat image(700, 700, CV_32FC3, r.frame_buffer().data());
         image.convertTo(image, CV_8UC3, 1.0f);
