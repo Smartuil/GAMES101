@@ -22,7 +22,7 @@ bool rayTriangleIntersect(const Vector3f& v0, const Vector3f& v1, const Vector3f
     u = 1.0f / s1dote1 * dotProduct(s1, s);
     v = 1.0f / s1dote1 * dotProduct(s2, dir);
 
-    if(tnear > 0 && v >= 0 && v <= 1 && u >= 0 && u <= 1)
+    if(tnear > 0 && v > 0 && u > 0 && (1 - u - v) > 0)
     {
         return true;
     }
@@ -91,7 +91,8 @@ public:
 
     Vector3f evalDiffuseColor(const Vector2f& st) const override
     {
-        float scale = 5;
+        //change plane color
+        float scale = 10;
         float pattern = (fmodf(st.x * scale, 1) > 0.5) ^ (fmodf(st.y * scale, 1) > 0.5);
         return lerp(Vector3f(0.815, 0.235, 0.031), Vector3f(0.937, 0.937, 0.231), pattern);
     }
