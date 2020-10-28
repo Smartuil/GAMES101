@@ -13,30 +13,23 @@ bool rayTriangleIntersect(const Vector3f& v0, const Vector3f& v1,
                           const Vector3f& v2, const Vector3f& orig,
                           const Vector3f& dir, float& tnear, float& u, float& v)
 {
-    Vector3f edge1 = v1 - v0;
-    Vector3f edge2 = v2 - v0;
-    Vector3f pvec = crossProduct(dir, edge2);
-    float det = dotProduct(edge1, pvec);
-    if (det == 0 || det < 0)
-        return false;
+    Vector3f e1 = v1 - v0;
+    Vector3f e2 = v2 - v0;
+    Vector3f s = orig - v0;
+    Vector3f s1 = crossProduct(dir, e2);
+    Vector3f s2 = crossProduct(s, e1);
 
-    Vector3f tvec = orig - v0;
-    u = dotProduct(tvec, pvec);
-    if (u < 0 || u > det)
-        return false;
+    float s1dote1 = dotProduct(s1, e1);
+    tnear = 1.0f / s1dote1 * dotProduct(s2, e2);
+    u = 1.0f / s1dote1 * dotProduct(s1, s);
+    v = 1.0f / s1dote1 * dotProduct(s2, dir);
 
-    Vector3f qvec = crossProduct(tvec, edge1);
-    v = dotProduct(dir, qvec);
-    if (v < 0 || u + v > det)
-        return false;
+    if(tnear > 0 && v > 0 && u > 0 && (1 - u - v) > 0)
+    {
+        return true;
+    }
 
-    float invDet = 1 / det;
-
-    tnear = dotProduct(edge2, qvec) * invDet;
-    u *= invDet;
-    v *= invDet;
-
-    return true;
+    return false;
 }
 
 class Triangle : public Object
@@ -233,7 +226,17 @@ inline Intersection Triangle::getIntersection(Ray ray)
 
     // TODO find ray triangle intersection
 
+    if(t_tmp < 0)
+    {
+        return inter;
+    }
 
+    inter.distance = t_tmp;
+    inter.coords = ray(t_tmp);
+    inter.happened = true;
+    inter.m = m;
+    inter.normal = normal;
+    inter.obj = this;
 
 
     return inter;

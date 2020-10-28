@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cassert>
 #include "BVH.hpp"
+#include <map>
+#include "Vector.hpp"
 
 BVHAccel::BVHAccel(std::vector<Object*> p, int maxPrimsInNode,
                    SplitMethod splitMethod)
@@ -23,6 +25,7 @@ BVHAccel::BVHAccel(std::vector<Object*> p, int maxPrimsInNode,
     printf(
         "\rBVH Generation complete: \nTime Taken: %i hrs, %i mins, %i secs\n\n",
         hrs, mins, secs);
+    //std::cout << diff << std::endl;
 }
 
 BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
@@ -51,8 +54,7 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
     else {
         Bounds3 centroidBounds;
         for (int i = 0; i < objects.size(); ++i)
-            centroidBounds =
-                Union(centroidBounds, objects[i]->getBounds().Centroid());
+            centroidBounds = Union(centroidBounds, objects[i]->getBounds().Centroid());
         int dim = centroidBounds.maxExtent();
         switch (dim) {
         case 0:
@@ -93,6 +95,14 @@ BVHBuildNode* BVHAccel::recursiveBuild(std::vector<Object*> objects)
     return node;
 }
 
+BVHBuildNode* BVHAccel::recursiveBuild2(std::vector<Object*> objects)
+{
+    BVHBuildNode* node = new BVHBuildNode();
+    //not finished
+
+    return node;
+}
+
 Intersection BVHAccel::Intersect(const Ray& ray) const
 {
     Intersection isect;
@@ -105,5 +115,20 @@ Intersection BVHAccel::Intersect(const Ray& ray) const
 Intersection BVHAccel::getIntersection(BVHBuildNode* node, const Ray& ray) const
 {
     // TODO Traverse the BVH to find intersection
+    Vector3f invDir = Vector3f{1.0f / ray.direction.x, 1.0f / ray.direction.y, 1.0f / ray.direction.z};
+    std::array<int, 3> dirIsNeg = {ray.direction.x > 0, ray.direction.y > 0, ray.direction.z > 0};
+    if(!node->bounds.IntersectP(ray, invDir, dirIsNeg))
+    {
+        return {};
+    }
 
+    if(node->left == nullptr && node->right == nullptr)
+    {
+        return node->object->getIntersection(ray);
+    }
+
+    Intersection h1 = getIntersection(node->left, ray);
+    Intersection h2 = getIntersection(node->right, ray);
+
+    return h1.distance < h2.distance ? h1 : h2;
 }
