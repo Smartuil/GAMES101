@@ -1,6 +1,6 @@
 build/
 *.pdf
-*.md
+#*.md
 .vscode/*
 !.vscode/launch.json
 !.vscode/settings.json
