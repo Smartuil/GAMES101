@@ -12,10 +12,10 @@ Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eye_pos)
     Eigen::Matrix4f view = Eigen::Matrix4f::Identity();
 
     Eigen::Matrix4f translate;
-    translate << 1, 0, 0, -eye_pos[0], 
-                0,  1, 0, -eye_pos[1], 
-                0,  0, 1, -eye_pos[2], 
-                0,  0, 0, 1;
+    translate <<    1,  0, 0, -eye_pos[0], 
+                    0,  1, 0, -eye_pos[1], 
+                    0,  0, 1, -eye_pos[2], 
+                    0,  0, 0, 1;
 
     view = translate * view;
 
@@ -33,7 +33,7 @@ Eigen::Matrix4f get_model_matrix(float rotation_angle)
     double rad=DEG2RAD(rotation_angle);
     Eigen::Matrix4f rotate(4,4);
     rotate<<cos(rad),   -sin(rad),  0,  0,
-            sin(rad),   -cos(rad),  0,  0,
+            sin(rad),   cos(rad),  0,  0,
             0,          0,          1,  0,
             0,          0,          0,  1;
     model=rotate*model;
@@ -98,7 +98,7 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio,
 	Eigen::Matrix4f M_ortho_trans;
 
 	float angle = eye_fov * MY_PI / 180; 
-	float t = -zNear * tan(angle/2);  
+	float t = -abs(zNear) * tan(angle/2);  
 	float r = t * aspect_ratio;  
     float l = -r;
     float b = -t;
@@ -144,9 +144,15 @@ int main(int argc, const char** argv)
 
     Eigen::Vector3f eye_pos = {0, 0, 5};
 
-    std::vector<Eigen::Vector3f> pos{{2, 0, -2}, {0, 2, -2}, {-2, 0, -2}};
+    std::vector<Eigen::Vector3f> pos{
+            {2, 0, -2}, 
+            {0, 2, -2}, 
+            {-2, 0, -2}
+        };
 
-    std::vector<Eigen::Vector3i> ind{{0, 1, 2}};
+    std::vector<Eigen::Vector3i> ind{
+            {0, 1, 2}
+        };
 
     auto pos_id = r.load_positions(pos);
     auto ind_id = r.load_indices(ind);
