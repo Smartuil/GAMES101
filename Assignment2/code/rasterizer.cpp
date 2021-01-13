@@ -40,7 +40,7 @@ auto to_vec4(const Eigen::Vector3f& v3, float w = 1.0f)
 }
 
 
-static bool insideTriangle(int x, int y, const Vector3f* _v)
+static bool insideTriangle(double x, double y, const Vector3f* _v)
 {   
     // TODO : Implement this function to check if the point (x, y) is inside the triangle represented by _v[0], _v[1], _v[2]
     Eigen::Vector2f p;
@@ -133,7 +133,7 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, bool InMASS) {
 	min_y = (int)std::floor(min_y);
 	max_y = (int)std::ceil(max_y);
 
-    std::cout<<min_x<<","<<max_x<<","<<min_y<<","<<max_y<<" ";
+    //std::cout<<min_x<<","<<max_x<<","<<min_y<<","<<max_y<<" ";
 
 	bool MSAA = InMASS;
 	//MSAA 4X
@@ -263,7 +263,7 @@ void rst::rasterizer::rasterize_triangle2(const Triangle& t, bool InMSAA) {
 						z_interpolated *= w_reciprocal;
 						minDepth = std::min(minDepth, z_interpolated);
 						count++;
-                        std::cout<<count;
+                        //std::cout<<count;
 					}
 				}
 				if (count != 0) {
