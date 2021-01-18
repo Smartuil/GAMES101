@@ -121,6 +121,7 @@ void rst::rasterizer::draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf
 //Screen space rasterization
 void rst::rasterizer::rasterize_triangle(const Triangle& t, bool InMASS) {
     auto v = t.toVector4();
+	//std::cout<<v[0].w()<<" ";
 
 	// bounding box
 	float min_x = std::min(v[0][0], std::min(v[1][0], v[2][0]));
