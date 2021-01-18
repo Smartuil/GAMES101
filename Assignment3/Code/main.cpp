@@ -57,7 +57,7 @@ Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio, float z
 	Eigen::Matrix4f M_ortho_trans;
 
 	float angle = eye_fov * MY_PI / 180; 
-	float t = -zNear * tan(angle/2);  
+	float t = -abs(zNear) * tan(angle/2);  
 	float r = t * aspect_ratio;  
     float l = -r;
     float b = -t;
@@ -208,8 +208,6 @@ Eigen::Vector3f phong_fragment_shader(const fragment_shader_payload& payload)
     return result_color * 255.f;
 }
 
-
-
 Eigen::Vector3f displacement_fragment_shader(const fragment_shader_payload& payload)
 {
     
@@ -296,7 +294,6 @@ Eigen::Vector3f displacement_fragment_shader(const fragment_shader_payload& payl
     return result_color * 255.f;
 }
 
-
 Eigen::Vector3f bump_fragment_shader(const fragment_shader_payload& payload)
 {
     //bump实现时需要注意获取纹理颜色时需要让u 加上 1.0f 而不是1，其次最后的颜色要用归一化的法向量
@@ -336,9 +333,9 @@ Eigen::Vector3f bump_fragment_shader(const fragment_shader_payload& payload)
 	Eigen::Vector3f t{ x * y / std::sqrt(x * x + z * z), std::sqrt(x * x + z * z), z*y / std::sqrt(x * x + z * z) };
 	Eigen::Vector3f b = normal.cross(t);
 	Eigen::Matrix3f TBN;
-	TBN << t.x(), b.x(), normal.x(),
-		t.y(), b.y(), normal.y(),
-		t.z(), b.z(), normal.z();
+	TBN <<  t.x(), b.x(), normal.x(),
+		    t.y(), b.y(), normal.y(),
+		    t.z(), b.z(), normal.z();
 
 	float u = payload.tex_coords.x();
 	float v = payload.tex_coords.y();
@@ -348,7 +345,7 @@ Eigen::Vector3f bump_fragment_shader(const fragment_shader_payload& payload)
 	float dU = kh * kn * (payload.texture->getColor(u + 1.0f / w , v).norm() - payload.texture->getColor(u, v).norm());
 	float dV = kh * kn * (payload.texture->getColor(u, v + 1.0f / h).norm() - payload.texture->getColor(u, v).norm());
 
-	Eigen::Vector3f ln{ -dU,-dV,1.0f };
+	Eigen::Vector3f ln{ -dU, -dV, 1.0f };
 
 	normal = TBN * ln;
     
